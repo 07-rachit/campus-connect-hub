@@ -37,11 +37,18 @@ const Register = () => {
     const { error } = await signUp(email, password, name);
 
     if (error) {
-      toast.error('Registration failed', { description: error.message });
+      const msg = error.message?.toLowerCase() || '';
+      if (msg.includes('already registered') || msg.includes('already been registered')) {
+        toast.error('An account with this email already exists', { description: 'Try signing in instead.' });
+      } else if (msg.includes('fetch') || msg.includes('network')) {
+        toast.error('Network error', { description: 'Please check your internet connection or disable browser extensions that may block requests.' });
+      } else {
+        toast.error('Registration failed', { description: error.message });
+      }
       setLoading(false);
     } else {
-      toast.success('Account created successfully!');
-      navigate('/dashboard');
+      toast.success('Account created! Please check your email to verify.');
+      navigate('/login');
     }
   };
 

@@ -24,7 +24,16 @@ const Login = () => {
     const { error } = await signIn(email, password);
 
     if (error) {
-      toast.error('Login failed', { description: error.message });
+      const msg = error.message?.toLowerCase() || '';
+      if (msg.includes('invalid login') || msg.includes('invalid credentials')) {
+        toast.error('Invalid email or password');
+      } else if (msg.includes('email not confirmed')) {
+        toast.error('Please verify your email before signing in');
+      } else if (msg.includes('fetch') || msg.includes('network')) {
+        toast.error('Network error', { description: 'Please check your internet connection or disable browser extensions that may block requests.' });
+      } else {
+        toast.error('Login failed', { description: error.message });
+      }
       setLoading(false);
     } else {
       toast.success('Welcome back!');
