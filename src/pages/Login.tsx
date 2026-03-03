@@ -29,7 +29,11 @@ const Login = () => {
         toast.error('Invalid email or password');
       } else if (msg.includes('email not confirmed')) {
         toast.error('Please verify your email before signing in');
-      } else if (msg.includes('fetch') || msg.includes('network')) {
+      } else if (msg.includes('backend auth config is missing')) {
+        toast.error('Missing backend configuration', { description: error.message });
+      } else if (msg.includes('cannot reach the auth service from localhost')) {
+        toast.error('Localhost auth connection blocked', { description: error.message });
+      } else if (msg.includes('fetch') || msg.includes('network') || msg.includes('cors')) {
         toast.error('Network error', { description: 'Please check your internet connection or disable browser extensions that may block requests.' });
       } else {
         toast.error('Login failed', { description: error.message });
