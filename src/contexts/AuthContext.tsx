@@ -75,20 +75,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (configError) return { error: configError };
 
     try {
-      const isLocalhost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
-      const options: { data: { name: string }; emailRedirectTo?: string } = { data: { name } };
-
-      if (!isLocalhost) {
-        options.emailRedirectTo = window.location.origin;
-      }
-
-      const { error } = await supabase.auth.signUp({
+      const withRedirect = await supabase.auth.signUp({
         email,
         password,
-        options,
+        options: {
+          data: { name },
+          emailRedirectTo: window.location.origin,
+        },
       });
 
-      return { error };
+      const firstError = withRedirect.error;
+      if (!firstError) {
+        return withRedirect;
+      }
+
+      const msg = firstError.message?.toLowerCase() ?? '';
+      const shouldRetryWithoutRedirect =
+        msg.includes('fetch') || msg.includes('network') || msg.includes('cors') || msg.includes('redirect');
+
+      if (shouldRetryWithoutRedirect) {
+        return await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { name },
+          },
+        });
+      }
+
+      return withRedirect;
     } catch (error) {
       return { error: normalizeAuthNetworkError(error) };
     }
