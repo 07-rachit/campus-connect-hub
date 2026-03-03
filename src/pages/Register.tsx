@@ -40,7 +40,11 @@ const Register = () => {
       const msg = error.message?.toLowerCase() || '';
       if (msg.includes('already registered') || msg.includes('already been registered')) {
         toast.error('An account with this email already exists', { description: 'Try signing in instead.' });
-      } else if (msg.includes('fetch') || msg.includes('network')) {
+      } else if (msg.includes('backend auth config is missing')) {
+        toast.error('Missing backend configuration', { description: error.message });
+      } else if (msg.includes('cannot reach the auth service from localhost')) {
+        toast.error('Localhost auth connection blocked', { description: error.message });
+      } else if (msg.includes('fetch') || msg.includes('network') || msg.includes('cors')) {
         toast.error('Network error', { description: 'Please check your internet connection or disable browser extensions that may block requests.' });
       } else {
         toast.error('Registration failed', { description: error.message });
